@@ -10,140 +10,174 @@
 
 <body class="min-h-screen">
 
-    <div class="px-6 py-4 max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 px-3 py-1 bg-[#D1DFD7] text-primary rounded-full text-xs font-medium">
-                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+    <header class="px-6 py-4 max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-4">
+        <nav class="flex items-center gap-4" aria-label="Container status summary">
+            <div class="flex items-center gap-2 px-3 py-1 bg-[#D1DFD7] text-primary rounded-full text-xs font-medium"
+                role="status">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true"></span>
                 {{.CountRun}} Running
             </div>
-            <div class="flex items-center gap-2 px-3 py-1 bg-[#F5EAD2] text-[#8C6D1F] rounded-full text-xs font-medium">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#D4A017]"></span>
+            <div class="flex items-center gap-2 px-3 py-1 bg-[#F5EAD2] text-[#8C6D1F] rounded-full text-xs font-medium"
+                role="status">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#D4A017]" aria-hidden="true"></span>
                 {{.CountPau}} Paused
             </div>
-            <div
-                class="flex items-center gap-2 px-3 py-1 bg-border-muted text-[#635F5C] rounded-full text-xs font-medium">
-                <span class="w-1.5 h-1.5 rounded-full bg-text-muted"></span>
+            <div class="flex items-center gap-2 px-3 py-1 bg-border-muted text-[#635F5C] rounded-full text-xs font-medium"
+                role="status">
+                <span class="w-1.5 h-1.5 rounded-full bg-text-muted" aria-hidden="true"></span>
                 {{.CountStp}} Stopped
             </div>
-        </div>
-    </div>
+        </nav>
+    </header>
 
     <main class="px-6 pb-20 max-w-[1400px] mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 
             <!-- Running -->
-            <div class="flex flex-col gap-4">
+            <section class="flex flex-col gap-4" aria-labelledby="heading-running">
                 <div class="flex items-center justify-between px-2">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-text-muted">Running</h3>
+                    <h2 id="heading-running"
+                        class="text-xs font-bold uppercase tracking-wider text-text-muted">Running</h2>
                     <span
-                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted">{{.CountRun}}</span>
+                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
+                        aria-label="{{.CountRun}} running containers">{{.CountRun}}</span>
                 </div>
-                <div class="flex flex-col gap-3">
+                <ol class="flex flex-col gap-3 list-none p-0 m-0">
                     {{range .Running}}
-                    <div
-                        class="bg-card-bg p-3 rounded-xl border border-border-muted shadow-sm hover:shadow-md transition-shadow group">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-primary/60"></div>
-                                <span class="text-sm font-semibold truncate max-w-40">{{.Name}}</span>
-                            </div>
-                            <span
-                                class="text-border-muted group-hover:text-primary transition-colors text-lg cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                </svg>
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
-                            <div class="flex items-center gap-1">{{.Status}}</div>
-                            <div class="ml-auto text-border-muted">{{.Version}}</div>
-                        </div>
-                    </div>
+                    <li>
+                        <article
+                            class="bg-card-bg p-3 rounded-xl border border-border-muted shadow-sm hover:shadow-md transition-shadow group">
+                            <header class="flex items-start justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-primary/60" aria-hidden="true"></span>
+                                    <h3 class="text-sm font-semibold truncate max-w-40">{{.Name}}</h3>
+                                </div>
+                                <button type="button" aria-label="Options for {{.Name}}"
+                                    class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    </svg>
+                                </button>
+                            </header>
+                            <dl class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
+                                <div class="flex items-center gap-1">
+                                    <dt class="sr-only">Status</dt>
+                                    <dd>{{.Status}}</dd>
+                                </div>
+                                <div class="ml-auto text-border-muted">
+                                    <dt class="sr-only">Version</dt>
+                                    <dd>{{.Version}}</dd>
+                                </div>
+                            </dl>
+                        </article>
+                    </li>
                     {{else}}
-                    <p class="text-xs text-text-muted px-2">No running containers</p>
+                    <li>
+                        <p class="text-xs text-text-muted px-2">No running containers</p>
+                    </li>
                     {{end}}
-                </div>
-            </div>
+                </ol>
+            </section>
 
             <!-- Paused -->
-            <div class="flex flex-col gap-4">
+            <section class="flex flex-col gap-4" aria-labelledby="heading-paused">
                 <div class="flex items-center justify-between px-2">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-text-muted">Paused</h3>
+                    <h2 id="heading-paused"
+                        class="text-xs font-bold uppercase tracking-wider text-text-muted">Paused</h2>
                     <span
-                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted">{{.CountPau}}</span>
+                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
+                        aria-label="{{.CountPau}} paused containers">{{.CountPau}}</span>
                 </div>
-                <div class="flex flex-col gap-3">
+                <ol class="flex flex-col gap-3 list-none p-0 m-0">
                     {{range .Paused}}
-                    <div
-                        class="bg-card-bg p-3 rounded-xl border border-border-muted shadow-sm hover:shadow-md transition-shadow group">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-[#D4A017]/70"></div>
-                                <span class="text-sm font-semibold truncate max-w-40">{{.Name}}</span>
-                            </div>
-                            <span
-                                class="text-border-muted group-hover:text-primary transition-colors text-lg cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                </svg>
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
-                            <div class="flex items-center gap-1">{{.Status}}</div>
-                            <div class="ml-auto text-border-muted">{{.Version}}</div>
-                        </div>
-                    </div>
+                    <li>
+                        <article
+                            class="bg-card-bg p-3 rounded-xl border border-border-muted shadow-sm hover:shadow-md transition-shadow group">
+                            <header class="flex items-start justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-[#D4A017]/70" aria-hidden="true"></span>
+                                    <h3 class="text-sm font-semibold truncate max-w-40">{{.Name}}</h3>
+                                </div>
+                                <button type="button" aria-label="Options for {{.Name}}"
+                                    class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    </svg>
+                                </button>
+                            </header>
+                            <dl class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
+                                <div class="flex items-center gap-1">
+                                    <dt class="sr-only">Status</dt>
+                                    <dd>{{.Status}}</dd>
+                                </div>
+                                <div class="ml-auto text-border-muted">
+                                    <dt class="sr-only">Version</dt>
+                                    <dd>{{.Version}}</dd>
+                                </div>
+                            </dl>
+                        </article>
+                    </li>
                     {{else}}
-                    <p class="text-xs text-text-muted px-2">No paused containers</p>
+                    <li>
+                        <p class="text-xs text-text-muted px-2">No paused containers</p>
+                    </li>
                     {{end}}
-                </div>
-            </div>
+                </ol>
+            </section>
 
             <!-- Stopped -->
-            <div class="flex flex-col gap-4">
+            <section class="flex flex-col gap-4" aria-labelledby="heading-stopped">
                 <div class="flex items-center justify-between px-2">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-text-muted">Stopped</h3>
+                    <h2 id="heading-stopped"
+                        class="text-xs font-bold uppercase tracking-wider text-text-muted">Stopped</h2>
                     <span
-                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted">{{.CountStp}}</span>
+                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
+                        aria-label="{{.CountStp}} stopped containers">{{.CountStp}}</span>
                 </div>
-                <div class="flex flex-col gap-3">
+                <ol class="flex flex-col gap-3 list-none p-0 m-0">
                     {{range .Stopped}}
-                    <div
-                        class="bg-card-bg/70 p-3 rounded-xl border border-border-muted opacity-80 shadow-sm hover:shadow-md hover:opacity-100 transition-all group">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-text-muted"></div>
-                                <span class="text-sm font-semibold truncate max-w-40">{{.Name}}</span>
-                            </div>
-                            <span
-                                class="text-border-muted group-hover:text-primary transition-colors text-lg cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                </svg>
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
-                            <div class="flex items-center gap-1">{{.Status}}</div>
-                            <!-- <div class="ml-auto text-border-muted">{{.Version}}</div> -->
-                        </div>
-                    </div>
+                    <li>
+                        <article
+                            class="bg-card-bg/70 p-3 rounded-xl border border-border-muted opacity-80 shadow-sm hover:shadow-md hover:opacity-100 transition-all group">
+                            <header class="flex items-start justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-text-muted" aria-hidden="true"></span>
+                                    <h3 class="text-sm font-semibold truncate max-w-40">{{.Name}}</h3>
+                                </div>
+                                <button type="button" aria-label="Options for {{.Name}}"
+                                    class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    </svg>
+                                </button>
+                            </header>
+                            <dl class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
+                                <div class="flex items-center gap-1">
+                                    <dt class="sr-only">Status</dt>
+                                    <dd>{{.Status}}</dd>
+                                </div>
+                            </dl>
+                        </article>
+                    </li>
                     {{else}}
-                    <p class="text-xs text-text-muted px-2">No stopped containers</p>
+                    <li>
+                        <p class="text-xs text-text-muted px-2">No stopped containers</p>
+                    </li>
                     {{end}}
-                </div>
-            </div>
+                </ol>
+            </section>
 
         </div>
     </main>
@@ -152,21 +186,25 @@
         class="fixed bottom-0 left-0 right-0 border-t border-border-muted bg-background-base/90 backdrop-blur-sm px-6 py-2">
         <div
             class="max-w-[1400px] mx-auto flex items-center justify-between text-[10px] uppercase tracking-widest font-bold text-text-muted">
-            <div class="flex items-center gap-6">
+            <dl class="flex items-center gap-6">
                 <div class="flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                    Docker Engine: {{.Engine.Version}}
+                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true"></span>
+                    <dt class="sr-only">Docker Engine</dt>
+                    <dd>Docker Engine: {{.Engine.Version}}</dd>
                 </div>
                 <div class="flex items-center gap-2">
-                    CPU: {{.Engine.NCPU}} cores
+                    <dt class="sr-only">CPU</dt>
+                    <dd>CPU: {{.Engine.NCPU}} cores</dd>
                 </div>
                 <div class="flex items-center gap-2">
-                    MEM: {{.Engine.MemTotal}}
+                    <dt class="sr-only">Memory</dt>
+                    <dd>MEM: {{.Engine.MemTotal}}</dd>
                 </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <span>Node: {{.Engine.NodeName}}</span>
-            </div>
+            </dl>
+            <dl class="flex items-center gap-4">
+                <dt class="sr-only">Node</dt>
+                <dd>Node: {{.Engine.NodeName}}</dd>
+            </dl>
         </div>
     </footer>
 
