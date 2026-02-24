@@ -36,15 +36,14 @@
             <!-- Running -->
             <section class="flex flex-col gap-4" aria-labelledby="heading-running">
                 <div class="flex items-center justify-between px-2">
-                    <h2 id="heading-running"
-                        class="text-xs font-bold uppercase tracking-wider text-text-muted">Running</h2>
-                    <span
-                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
+                    <h2 id="heading-running" class="text-xs font-bold uppercase tracking-wider text-text-muted">Running
+                    </h2>
+                    <span class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
                         aria-label="{{.CountRun}} running containers">{{.CountRun}}</span>
                 </div>
-                <ol class="flex flex-col gap-3 list-none p-0 m-0">
+                <ol data-dropzone="running" class="flex flex-col gap-3 list-none p-0 m-0 min-h-[60px]">
                     {{range .Running}}
-                    <li>
+                    <li draggable="true" data-container-id="{{.ID}}" data-state="running">
                         <article
                             class="bg-card-bg p-3 rounded-xl border border-border-muted shadow-sm hover:shadow-md transition-shadow group">
                             <header class="flex items-start justify-between mb-2">
@@ -52,16 +51,24 @@
                                     <span class="w-2 h-2 rounded-full bg-primary/60" aria-hidden="true"></span>
                                     <h3 class="text-sm font-semibold truncate max-w-40">{{.Name}}</h3>
                                 </div>
-                                <button type="button" aria-label="Options for {{.Name}}"
-                                    class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                        <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                        <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    </svg>
-                                </button>
+                                <div class="otto-menu-wrap">
+                                    <button type="button" aria-label="Options for {{.Name}}" data-menu-toggle
+                                        class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                            <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                            <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        </svg>
+                                    </button>
+                                    <div class="otto-dropdown" role="menu">
+                                        <button type="button" role="menuitem" data-action="pause">Pause</button>
+                                        <button type="button" role="menuitem" data-action="stop">Stop</button>
+                                        <div class="otto-dropdown-divider"></div>
+                                        <button type="button" role="menuitem" disabled>View Logs</button>
+                                    </div>
+                                </div>
                             </header>
                             <dl class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
                                 <div class="flex items-center gap-1">
@@ -76,7 +83,7 @@
                         </article>
                     </li>
                     {{else}}
-                    <li>
+                    <li data-empty-msg>
                         <p class="text-xs text-text-muted px-2">No running containers</p>
                     </li>
                     {{end}}
@@ -86,15 +93,14 @@
             <!-- Paused -->
             <section class="flex flex-col gap-4" aria-labelledby="heading-paused">
                 <div class="flex items-center justify-between px-2">
-                    <h2 id="heading-paused"
-                        class="text-xs font-bold uppercase tracking-wider text-text-muted">Paused</h2>
-                    <span
-                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
+                    <h2 id="heading-paused" class="text-xs font-bold uppercase tracking-wider text-text-muted">Paused
+                    </h2>
+                    <span class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
                         aria-label="{{.CountPau}} paused containers">{{.CountPau}}</span>
                 </div>
-                <ol class="flex flex-col gap-3 list-none p-0 m-0">
+                <ol data-dropzone="paused" class="flex flex-col gap-3 list-none p-0 m-0 min-h-[60px]">
                     {{range .Paused}}
-                    <li>
+                    <li draggable="true" data-container-id="{{.ID}}" data-state="paused">
                         <article
                             class="bg-card-bg p-3 rounded-xl border border-border-muted shadow-sm hover:shadow-md transition-shadow group">
                             <header class="flex items-start justify-between mb-2">
@@ -102,16 +108,24 @@
                                     <span class="w-2 h-2 rounded-full bg-[#D4A017]/70" aria-hidden="true"></span>
                                     <h3 class="text-sm font-semibold truncate max-w-40">{{.Name}}</h3>
                                 </div>
-                                <button type="button" aria-label="Options for {{.Name}}"
-                                    class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                        <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                        <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    </svg>
-                                </button>
+                                <div class="otto-menu-wrap">
+                                    <button type="button" aria-label="Options for {{.Name}}" data-menu-toggle
+                                        class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                            <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                            <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        </svg>
+                                    </button>
+                                    <div class="otto-dropdown" role="menu">
+                                        <button type="button" role="menuitem" data-action="start">Resume</button>
+                                        <button type="button" role="menuitem" data-action="stop">Stop</button>
+                                        <div class="otto-dropdown-divider"></div>
+                                        <button type="button" role="menuitem" disabled>View Logs (coming soon)</button>
+                                    </div>
+                                </div>
                             </header>
                             <dl class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
                                 <div class="flex items-center gap-1">
@@ -126,7 +140,7 @@
                         </article>
                     </li>
                     {{else}}
-                    <li>
+                    <li data-empty-msg>
                         <p class="text-xs text-text-muted px-2">No paused containers</p>
                     </li>
                     {{end}}
@@ -136,15 +150,14 @@
             <!-- Stopped -->
             <section class="flex flex-col gap-4" aria-labelledby="heading-stopped">
                 <div class="flex items-center justify-between px-2">
-                    <h2 id="heading-stopped"
-                        class="text-xs font-bold uppercase tracking-wider text-text-muted">Stopped</h2>
-                    <span
-                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
+                    <h2 id="heading-stopped" class="text-xs font-bold uppercase tracking-wider text-text-muted">Stopped
+                    </h2>
+                    <span class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted"
                         aria-label="{{.CountStp}} stopped containers">{{.CountStp}}</span>
                 </div>
-                <ol class="flex flex-col gap-3 list-none p-0 m-0">
+                <ol data-dropzone="stopped" class="flex flex-col gap-3 list-none p-0 m-0 min-h-[60px]">
                     {{range .Stopped}}
-                    <li>
+                    <li draggable="true" data-container-id="{{.ID}}" data-state="stopped">
                         <article
                             class="bg-card-bg/70 p-3 rounded-xl border border-border-muted opacity-80 shadow-sm hover:shadow-md hover:opacity-100 transition-all group">
                             <header class="flex items-start justify-between mb-2">
@@ -152,27 +165,38 @@
                                     <span class="w-2 h-2 rounded-full bg-text-muted" aria-hidden="true"></span>
                                     <h3 class="text-sm font-semibold truncate max-w-40">{{.Name}}</h3>
                                 </div>
-                                <button type="button" aria-label="Options for {{.Name}}"
-                                    class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                        <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                        <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                    </svg>
-                                </button>
+                                <div class="otto-menu-wrap">
+                                    <button type="button" aria-label="Options for {{.Name}}" data-menu-toggle
+                                        class="text-border-muted group-hover:text-primary transition-colors cursor-pointer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                            <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                            <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        </svg>
+                                    </button>
+                                    <div class="otto-dropdown" role="menu">
+                                        <button type="button" role="menuitem" data-action="start">Start</button>
+                                        <div class="otto-dropdown-divider"></div>
+                                        <button type="button" role="menuitem" disabled>View Logs (coming soon)</button>
+                                    </div>
+                                </div>
                             </header>
                             <dl class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
                                 <div class="flex items-center gap-1">
                                     <dt class="sr-only">Status</dt>
                                     <dd>{{.Status}}</dd>
                                 </div>
+                                <div class="ml-auto text-border-muted">
+                                    <dt class="sr-only">Version</dt>
+                                    <dd>{{.Version}}</dd>
+                                </div>
                             </dl>
                         </article>
                     </li>
                     {{else}}
-                    <li>
+                    <li data-empty-msg>
                         <p class="text-xs text-text-muted px-2">No stopped containers</p>
                     </li>
                     {{end}}
@@ -208,6 +232,7 @@
         </div>
     </footer>
 
+    <script src="/assets/js/main.js"></script>
 </body>
 
 </html>

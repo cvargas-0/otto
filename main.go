@@ -49,6 +49,9 @@ type PageData struct {
 }
 
 func extractVersion(image string) string {
+	if strings.HasPrefix(image, "sha256:") {
+		return image[7:19]
+	}
 	if i := strings.LastIndex(image, ":"); i != -1 {
 		return image[i+1:]
 	}
@@ -68,6 +71,31 @@ func main() {
 
 	fileServer := http.FileServer(http.FS(web.Files))
 	mux.Handle("/assets/", fileServer)
+
+	mux.HandleFunc("POST /containers/{id}/{action}", func(w http.ResponseWriter, r *http.Request) {
+		containerID := r.PathValue("id")
+		action := r.PathValue("action")
+
+		var err error
+		switch action {
+		case "start":
+			_, err = apiClient.ContainerStart(r.Context(), containerID, client.ContainerStartOptions{})
+		case "pause":
+			_, err = apiClient.ContainerPause(r.Context(), containerID, client.ContainerPauseOptions{})
+		case "stop":
+			_, err = apiClient.ContainerStop(r.Context(), containerID, client.ContainerStopOptions{})
+		default:
+			http.Error(w, "unknown action", http.StatusBadRequest)
+			return
+		}
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		result, err := apiClient.ContainerList(r.Context(), client.ContainerListOptions{

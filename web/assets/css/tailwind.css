@@ -3,11 +3,11 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: #2F5D50;
-  --color-background-base: #EDEBE8;
-  --color-card-bg: #FCFBF9;
-  --color-text-muted: #7A7672;
-  --color-border-muted: #D9D5D1;
+  --color-primary: #2f5d50;
+  --color-background-base: #edebe8;
+  --color-card-bg: #fcfbf9;
+  --color-text-muted: #7a7672;
+  --color-border-muted: #d9d5d1;
 
   --font-display: "Inter", sans-serif;
 
@@ -15,12 +15,137 @@
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
   --radius-full: 9999px;
-}
 
+  --animate-breathe: otto-breathe 1s ease-in-out infinite alternate;
+  --animate-pulse-loading: otto-pulse-loading 0.6s ease-in-out infinite
+    alternate;
+  --animate-dropdown-in: otto-dropdown-in 150ms ease-out;
+}
 
 @layer base {
   body {
     @apply bg-background-base text-[#44413E] font-display;
   }
+}
 
+/* ── Drag & drop ── */
+
+@layer components {
+  /* Card being dragged */
+  .otto-dragging {
+    @apply opacity-25 scale-95 transition-all duration-200 ease-in-out;
+  }
+
+  /* Active drop-zone column */
+  .otto-zone-active {
+    outline: 2px dashed var(--color-primary);
+    outline-offset: 6px;
+    @apply rounded-xl transition-all duration-200 ease-in-out;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 6px,
+      color-mix(in srgb, var(--color-primary) 4%, transparent) 6px,
+      color-mix(in srgb, var(--color-primary) 4%, transparent) 12px
+    );
+  }
+
+  /* Placeholder ghost card */
+  .otto-drop-indicator {
+    @apply h-13 rounded-xl my-1 pointer-events-none relative;
+    border: 2px dashed var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+    animation: var(--animate-breathe);
+  }
+
+  .otto-drop-indicator::before {
+    content: "Drop here";
+    @apply absolute inset-0 flex items-center justify-center text-[11px] font-semibold tracking-wide uppercase text-primary opacity-70;
+  }
+
+  /* Grab cursor on draggable cards */
+  li[draggable="true"] article {
+    @apply cursor-grab;
+  }
+
+  li[draggable="true"]:active article {
+    @apply cursor-grabbing;
+  }
+
+  /* Loading state while waiting for backend */
+  .otto-loading article {
+    @apply opacity-50 pointer-events-none;
+    animation: var(--animate-pulse-loading);
+  }
+}
+
+/* ── Dropdown menu ── */
+
+@layer components {
+  .otto-menu-wrap {
+    @apply relative;
+  }
+
+  .otto-dropdown {
+    @apply hidden absolute right-0 top-full z-50 min-w-40 mt-1 py-1 bg-card-bg border border-border-muted rounded-lg shadow-lg;
+  }
+
+  .otto-dropdown.open {
+    @apply block;
+    animation: var(--animate-dropdown-in);
+  }
+
+  .otto-dropdown button {
+    @apply flex items-center gap-2 w-full px-3 py-1.5 border-none bg-transparent text-xs font-medium text-[#44413E] cursor-pointer text-left;
+  }
+
+  .otto-dropdown button:hover {
+    @apply text-primary;
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  }
+
+  .otto-dropdown button[disabled] {
+    @apply text-text-muted cursor-not-allowed opacity-50;
+  }
+
+  .otto-dropdown button[disabled]:hover {
+    @apply bg-transparent text-text-muted;
+  }
+
+  .otto-dropdown-divider {
+    @apply h-px my-1 bg-border-muted;
+  }
+}
+
+/* ── Keyframes ── */
+
+@keyframes otto-breathe {
+  from {
+    opacity: 0.55;
+    transform: scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes otto-pulse-loading {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
+
+@keyframes otto-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
