@@ -80,6 +80,8 @@ func main() {
 		switch action {
 		case "start":
 			_, err = apiClient.ContainerStart(r.Context(), containerID, client.ContainerStartOptions{})
+		case "unpause":
+			_, err = apiClient.ContainerUnpause(r.Context(), containerID, client.ContainerUnpauseOptions{})
 		case "pause":
 			_, err = apiClient.ContainerPause(r.Context(), containerID, client.ContainerPauseOptions{})
 		case "stop":

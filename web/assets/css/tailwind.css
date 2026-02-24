@@ -50,6 +50,13 @@
     );
   }
 
+  /* Blocked drop-zone — invalid transition */
+  .otto-zone-blocked {
+    @apply opacity-40 pointer-events-none rounded-xl transition-opacity duration-200;
+    outline: 2px dashed var(--color-text-muted);
+    outline-offset: 6px;
+  }
+
   /* Placeholder ghost card */
   .otto-drop-indicator {
     @apply h-13 rounded-xl my-1 pointer-events-none relative;

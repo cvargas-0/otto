@@ -8,8 +8,36 @@ const EMPTY_MESSAGES = {
   stopped: "No stopped containers",
 };
 
+/**
+ * Valid direct Docker transitions per source state.
+ *   running → paused, stopped
+ *   paused  → running
+ *   stopped → running
+ */
+const VALID_TARGETS = {
+  running: ["paused", "stopped"],
+  paused: ["running"],
+  stopped: ["running"],
+};
+
+/** Menu actions per state — label + Docker action */
+const MENU_ACTIONS = {
+  running: [
+    { label: "Pause", action: "pause" },
+    { label: "Stop", action: "stop" },
+  ],
+  paused: [{ label: "Resume", action: "unpause" }],
+  stopped: [{ label: "Start", action: "start" }],
+};
+
 let draggedEl = null;
 let placeholder = null;
+
+/** Check if a drag move is allowed */
+function canDrop(targetZone, currentState) {
+  if (targetZone === currentState) return false;
+  return (VALID_TARGETS[currentState] || []).includes(targetZone);
+}
 
 /** Build a visual placeholder bar */
 function createPlaceholder() {
@@ -31,34 +59,44 @@ function getInsertBefore(zone, y) {
   return null;
 }
 
-/** Map a dropzone name → Docker action verb */
-function actionFor(targetZone, sourceZone) {
-  if (targetZone === sourceZone) return null;
-  const map = { running: "start", paused: "pause", stopped: "stop" };
-  return map[targetZone] || null;
+/**
+ * Map a dropzone move → Docker action.
+ *   running → paused  = pause
+ *   running → stopped = stop
+ *   paused  → running = unpause
+ *   stopped → running = start
+ */
+function actionFor(targetZone, currentState) {
+  if (targetZone === "paused" && currentState === "running") return "pause";
+  if (targetZone === "stopped" && currentState === "running") return "stop";
+  if (targetZone === "running" && currentState === "paused") return "unpause";
+  if (targetZone === "running" && currentState === "stopped") return "start";
+  return null;
 }
 
-/** POST to trigger the Docker action, then reload to reflect real state */
-function sendAction(containerId, action, cardEl) {
-  // Add a loading indicator on the card
+/** POST action, then reload to reflect real state */
+async function sendActions(containerId, actions, cardEl) {
   if (cardEl) cardEl.classList.add("otto-loading");
 
-  fetch(`/containers/${containerId}/${action}`, { method: "POST" })
-    .then((res) => {
+  for (const action of actions) {
+    try {
+      const res = await fetch(`/containers/${containerId}/${action}`, {
+        method: "POST",
+      });
       if (!res.ok) {
         console.error(
           `Action ${action} failed for ${containerId}:`,
           res.status,
         );
-        // Reload anyway to revert the optimistic UI move
+        break;
       }
-      // Reload page to get the real Docker state
-      window.location.reload();
-    })
-    .catch((err) => {
+    } catch (err) {
       console.error(`Network error for ${action}:`, err);
-      window.location.reload();
-    });
+      break;
+    }
+  }
+
+  window.location.reload();
 }
 
 /** Update badge counters and empty-state messages */
@@ -69,14 +107,12 @@ function refreshCounts() {
     const name = zone.dataset.dropzone;
     const count = zone.querySelectorAll(`:scope > ${CARD_SEL}`).length;
 
-    // badge
     const badge = section.querySelector("span[aria-label]");
     if (badge) {
       badge.textContent = count;
       badge.setAttribute("aria-label", `${count} ${name} containers`);
     }
 
-    // empty-state message
     const existing = zone.querySelector(EMPTY_SEL);
     if (count === 0 && !existing) {
       const li = document.createElement("li");
@@ -91,7 +127,6 @@ function refreshCounts() {
     }
   });
 
-  // header pills
   const zones = { running: 0, paused: 0, stopped: 0 };
   document.querySelectorAll(ZONE_SEL).forEach((z) => {
     zones[z.dataset.dropzone] = z.querySelectorAll(
@@ -111,6 +146,16 @@ function onDragStart(e) {
   e.dataTransfer.effectAllowed = "move";
   e.dataTransfer.setData("text/plain", draggedEl.dataset.containerId);
   placeholder = createPlaceholder();
+
+  // mark valid/invalid zones immediately
+  const state = draggedEl.dataset.state;
+  document.querySelectorAll(ZONE_SEL).forEach((z) => {
+    const target = z.dataset.dropzone;
+    if (target === state) return;
+    if (!canDrop(target, state)) {
+      z.classList.add("otto-zone-blocked");
+    }
+  });
 }
 
 function onDragEnd() {
@@ -118,24 +163,34 @@ function onDragEnd() {
   if (placeholder && placeholder.parentNode) placeholder.remove();
   document
     .querySelectorAll(ZONE_SEL)
-    .forEach((z) => z.classList.remove("otto-zone-active"));
+    .forEach((z) =>
+      z.classList.remove("otto-zone-active", "otto-zone-blocked"),
+    );
   draggedEl = null;
   placeholder = null;
 }
 
 function onDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = "move";
   const zone = e.target.closest(ZONE_SEL);
   if (!zone || !draggedEl) return;
 
-  // highlight active zone
+  const targetZone = zone.dataset.dropzone;
+  const currentState = draggedEl.dataset.state;
+
+  if (!canDrop(targetZone, currentState)) {
+    e.dataTransfer.dropEffect = "none";
+    return;
+  }
+
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+
+  // highlight only valid zone
   document
     .querySelectorAll(ZONE_SEL)
     .forEach((z) => z.classList.remove("otto-zone-active"));
   zone.classList.add("otto-zone-active");
 
-  // position placeholder
   const ref = getInsertBefore(zone, e.clientY);
   if (ref) {
     zone.insertBefore(placeholder, ref);
@@ -147,7 +202,6 @@ function onDragOver(e) {
 function onDragLeave(e) {
   const zone = e.target.closest(ZONE_SEL);
   if (!zone) return;
-  // only remove if we truly left the zone
   if (!zone.contains(e.relatedTarget)) {
     zone.classList.remove("otto-zone-active");
     if (placeholder && placeholder.parentNode === zone) placeholder.remove();
@@ -159,9 +213,11 @@ function onDrop(e) {
   const zone = e.target.closest(ZONE_SEL);
   if (!zone || !draggedEl) return;
 
-  const sourceZone = draggedEl.closest(ZONE_SEL)?.dataset.dropzone;
   const targetZone = zone.dataset.dropzone;
   const containerId = draggedEl.dataset.containerId;
+  const currentState = draggedEl.dataset.state;
+
+  if (!canDrop(targetZone, currentState)) return;
 
   // move card in the DOM
   if (placeholder && placeholder.parentNode === zone) {
@@ -170,7 +226,7 @@ function onDrop(e) {
     zone.appendChild(draggedEl);
   }
 
-  // update dot color to match target column
+  // update dot color
   const dot = draggedEl.querySelector("span[aria-hidden='true']");
   if (dot) {
     dot.className = "w-2 h-2 rounded-full";
@@ -183,13 +239,16 @@ function onDrop(e) {
   if (placeholder) placeholder.remove();
   zone.classList.remove("otto-zone-active");
   draggedEl.classList.remove("otto-dragging");
+  document
+    .querySelectorAll(ZONE_SEL)
+    .forEach((z) => z.classList.remove("otto-zone-blocked"));
 
   refreshCounts();
 
-  // call backend and reload on completion
-  const action = actionFor(targetZone, sourceZone);
+  const action = actionFor(targetZone, currentState);
   if (action && containerId) {
-    sendAction(containerId, action, draggedEl);
+    draggedEl.dataset.state = targetZone;
+    sendActions(containerId, [action], draggedEl);
   }
 
   draggedEl = null;
@@ -202,6 +261,32 @@ function closeAllDropdowns() {
     .forEach((d) => d.classList.remove("open"));
 }
 
+/** Build dropdown items based on current state */
+function populateDropdown(dropdown, state) {
+  dropdown.innerHTML = "";
+  const items = MENU_ACTIONS[state] || [];
+
+  items.forEach((item) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.role = "menuitem";
+    btn.dataset.action = item.action;
+    btn.textContent = item.label;
+    dropdown.appendChild(btn);
+  });
+
+  const divider = document.createElement("div");
+  divider.className = "otto-dropdown-divider";
+  dropdown.appendChild(divider);
+
+  const logsBtn = document.createElement("button");
+  logsBtn.type = "button";
+  logsBtn.role = "menuitem";
+  logsBtn.disabled = true;
+  logsBtn.textContent = "View Logs";
+  dropdown.appendChild(logsBtn);
+}
+
 function onMenuToggle(e) {
   const btn = e.target.closest("[data-menu-toggle]");
   if (!btn) return;
@@ -209,14 +294,16 @@ function onMenuToggle(e) {
   e.preventDefault();
   e.stopPropagation();
 
-  const dropdown = btn
-    .closest(".otto-menu-wrap")
-    .querySelector(".otto-dropdown");
+  const wrap = btn.closest(".otto-menu-wrap");
+  const dropdown = wrap.querySelector(".otto-dropdown");
   const isOpen = dropdown.classList.contains("open");
 
   closeAllDropdowns();
 
   if (!isOpen) {
+    const card = btn.closest(CARD_SEL);
+    const state = card?.dataset.state;
+    populateDropdown(dropdown, state);
     dropdown.classList.add("open");
   }
 }
@@ -235,12 +322,11 @@ function onMenuAction(e) {
   closeAllDropdowns();
 
   if (action && containerId) {
-    sendAction(containerId, action, card);
+    sendActions(containerId, [action], card);
   }
 }
 
 function init() {
-  // drag & drop
   document.addEventListener("dragstart", onDragStart);
   document.addEventListener("dragend", onDragEnd);
 
@@ -250,7 +336,6 @@ function init() {
     zone.addEventListener("drop", onDrop);
   });
 
-  // dropdown menus
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-menu-toggle]")) {
       onMenuToggle(e);
