@@ -155,11 +155,17 @@
             <div class="flex items-center gap-6">
                 <div class="flex items-center gap-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                    Docker Engine
+                    Docker Engine: {{.Engine.Version}}
+                </div>
+                <div class="flex items-center gap-2">
+                    CPU: {{.Engine.NCPU}} cores
+                </div>
+                <div class="flex items-center gap-2">
+                    MEM: {{.Engine.MemTotal}}
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <span>Otto</span>
+                <span>Node: {{.Engine.NodeName}}</span>
             </div>
         </div>
     </footer>

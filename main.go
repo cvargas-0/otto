@@ -31,6 +31,13 @@ type Container struct {
 	Ports   []PortSummary
 }
 
+type EngineInfo struct {
+	Version  string
+	NodeName string
+	NCPU     int
+	MemTotal string
+}
+
 type PageData struct {
 	Running  []Container
 	Paused   []Container
@@ -38,6 +45,7 @@ type PageData struct {
 	CountRun int
 	CountPau int
 	CountStp int
+	Engine   EngineInfo
 }
 
 func extractVersion(image string) string {
@@ -109,6 +117,17 @@ func main() {
 		data.CountRun = len(data.Running)
 		data.CountPau = len(data.Paused)
 		data.CountStp = len(data.Stopped)
+
+		info, infoErr := apiClient.Info(r.Context(), client.InfoOptions{})
+		if infoErr == nil {
+			memGB := float64(info.Info.MemTotal) / (1024 * 1024 * 1024)
+			data.Engine = EngineInfo{
+				Version:  info.Info.ServerVersion,
+				NodeName: info.Info.Name,
+				NCPU:     info.Info.NCPU,
+				MemTotal: fmt.Sprintf("%.1fGB", memGB),
+			}
+		}
 
 		w.Header().Set("Content-Type", "text/html")
 		if err := templ.Execute(w, data); err != nil {
