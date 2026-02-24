@@ -1,11 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Otto - Docker containers</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
-<body>
-    <h1>hello world</h1>
+
+<body class="min-h-screen">
+
+    <div class="px-6 py-4 max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 px-3 py-1 bg-[#D1DFD7] text-primary rounded-full text-xs font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                {{.CountRun}} Running
+            </div>
+            <div class="flex items-center gap-2 px-3 py-1 bg-[#F5EAD2] text-[#8C6D1F] rounded-full text-xs font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#D4A017]"></span>
+                {{.CountPau}} Paused
+            </div>
+            <div
+                class="flex items-center gap-2 px-3 py-1 bg-border-muted text-[#635F5C] rounded-full text-xs font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-text-muted"></span>
+                {{.CountStp}} Stopped
+            </div>
+        </div>
+    </div>
+
+    <main class="px-6 pb-20 max-w-[1400px] mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+
+            <!-- Running -->
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between px-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-text-muted">Running</h3>
+                    <span
+                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted">{{.CountRun}}</span>
+                </div>
+                <div class="flex flex-col gap-3">
+                    {{range .Running}}
+                    <div
+                        class="bg-card-bg p-3 rounded-xl border border-border-muted shadow-sm hover:shadow-md transition-shadow group">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-primary/60"></div>
+                                <span class="text-sm font-semibold truncate max-w-40">{{.Name}}</span>
+                            </div>
+                            <span
+                                class="text-border-muted group-hover:text-primary transition-colors text-lg cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
+                            <div class="flex items-center gap-1">{{.Status}}</div>
+                            <div class="ml-auto text-border-muted">{{.Version}}</div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <p class="text-xs text-text-muted px-2">No running containers</p>
+                    {{end}}
+                </div>
+            </div>
+
+            <!-- Paused -->
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between px-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-text-muted">Paused</h3>
+                    <span
+                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted">{{.CountPau}}</span>
+                </div>
+                <div class="flex flex-col gap-3">
+                    {{range .Paused}}
+                    <div
+                        class="bg-card-bg p-3 rounded-xl border border-border-muted shadow-sm hover:shadow-md transition-shadow group">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-[#D4A017]/70"></div>
+                                <span class="text-sm font-semibold truncate max-w-40">{{.Name}}</span>
+                            </div>
+                            <span
+                                class="text-border-muted group-hover:text-primary transition-colors text-lg cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
+                            <div class="flex items-center gap-1">{{.Status}}</div>
+                            <div class="ml-auto text-border-muted">{{.Version}}</div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <p class="text-xs text-text-muted px-2">No paused containers</p>
+                    {{end}}
+                </div>
+            </div>
+
+            <!-- Stopped -->
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between px-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-text-muted">Stopped</h3>
+                    <span
+                        class="text-[10px] bg-border-muted px-2 py-0.5 rounded-full font-bold text-text-muted">{{.CountStp}}</span>
+                </div>
+                <div class="flex flex-col gap-3">
+                    {{range .Stopped}}
+                    <div
+                        class="bg-card-bg/70 p-3 rounded-xl border border-border-muted opacity-80 shadow-sm hover:shadow-md hover:opacity-100 transition-all group">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-text-muted"></div>
+                                <span class="text-sm font-semibold truncate max-w-40">{{.Name}}</span>
+                            </div>
+                            <span
+                                class="text-border-muted group-hover:text-primary transition-colors text-lg cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-4 text-[11px] text-text-muted font-medium">
+                            <div class="flex items-center gap-1">{{.Status}}</div>
+                            <!-- <div class="ml-auto text-border-muted">{{.Version}}</div> -->
+                        </div>
+                    </div>
+                    {{else}}
+                    <p class="text-xs text-text-muted px-2">No stopped containers</p>
+                    {{end}}
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer
+        class="fixed bottom-0 left-0 right-0 border-t border-border-muted bg-background-base/90 backdrop-blur-sm px-6 py-2">
+        <div
+            class="max-w-[1400px] mx-auto flex items-center justify-between text-[10px] uppercase tracking-widest font-bold text-text-muted">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                    Docker Engine
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <span>Otto</span>
+            </div>
+        </div>
+    </footer>
+
 </body>
+
 </html>

@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #2F5D50;
+  --color-background-base: #EDEBE8;
+  --color-card-bg: #FCFBF9;
+  --color-text-muted: #7A7672;
+  --color-border-muted: #D9D5D1;
+
+  --font-display: "Inter", sans-serif;
+
+  --radius-default: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+
+@layer base {
+  body {
+    @apply bg-background-base text-[#44413E] font-display;
+  }
+
+}

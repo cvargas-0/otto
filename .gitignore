@@ -27,3 +27,5 @@ go.work
 # End of https://www.toptal.com/developers/gitignore/api/go
 
 tmp
+# Ignore tailwindcss generated files
+/web/assets/css/styles.css 

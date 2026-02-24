@@ -3,16 +3,58 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"text/template"
+
+	"github.com/moby/moby/client"
 
 	"github.com/cvargas-0/otto/web"
 )
 
 var templ *template.Template
 
-func main() {
+type PortSummary struct {
+	IP          string
+	PrivatePort uint16
+	PublicPort  uint16
+	Type        string
+}
 
-	templ = template.Must(template.ParseFS(web.Files, "web/index.html"))
+type Container struct {
+	ID      string
+	Name    string
+	Image   string
+	Version string
+	State   string
+	Status  string
+	Labels  map[string]string
+	Ports   []PortSummary
+}
+
+type PageData struct {
+	Running  []Container
+	Paused   []Container
+	Stopped  []Container
+	CountRun int
+	CountPau int
+	CountStp int
+}
+
+func extractVersion(image string) string {
+	if i := strings.LastIndex(image, ":"); i != -1 {
+		return image[i+1:]
+	}
+	return "latest"
+}
+
+func main() {
+	apiClient, err := client.New(client.FromEnv)
+	if err != nil {
+		panic(err)
+	}
+	defer apiClient.Close()
+
+	templ = template.Must(template.ParseFS(web.Files, "index.html"))
 
 	mux := http.NewServeMux()
 
@@ -20,8 +62,56 @@ func main() {
 	mux.Handle("/assets/", fileServer)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		result, err := apiClient.ContainerList(r.Context(), client.ContainerListOptions{
+			All: true,
+		})
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		data := PageData{}
+
+		for _, c := range result.Items {
+			container := Container{
+				ID:      c.ID[:10],
+				Name:    strings.TrimPrefix(c.Names[0], "/"),
+				Image:   c.Image,
+				Version: extractVersion(c.Image),
+				State:   string(c.State),
+				Status:  c.Status,
+				Labels:  c.Labels,
+				Ports: func() []PortSummary {
+					var ports []PortSummary
+					for _, p := range c.Ports {
+						ports = append(ports, PortSummary{
+							IP:          p.IP.String(),
+							PrivatePort: p.PrivatePort,
+							PublicPort:  p.PublicPort,
+							Type:        p.Type,
+						})
+					}
+					return ports
+				}(),
+			}
+
+			switch c.State {
+			case "running":
+				data.Running = append(data.Running, container)
+			case "paused":
+				data.Paused = append(data.Paused, container)
+			default:
+				data.Stopped = append(data.Stopped, container)
+			}
+		}
+
+		data.CountRun = len(data.Running)
+		data.CountPau = len(data.Paused)
+		data.CountStp = len(data.Stopped)
+
 		w.Header().Set("Content-Type", "text/html")
-		if err := templ.Execute(w, nil); err != nil {
+		if err := templ.Execute(w, data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
